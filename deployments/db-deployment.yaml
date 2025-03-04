@@ -34,7 +34,7 @@ spec:
               value: somewordpress
             - name: MYSQL_USER
               value: wordpress
-          image: harbor.korporate.org/mywp/mariadb:main-65adfd430563e5c9e90a225c3a9e8125ccb90fe3
+          image: harbor.korporate.org/mywp/mariadb@sha256:5e662391f68fdf4e54770ee91606e7d80e129af1d24b1afebdbf1f78ececfd5b
           name: db
           ports:
             - containerPort: 3306

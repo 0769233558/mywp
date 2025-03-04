@@ -1,4 +1,4 @@
-FROM alpine:3.18 as build
+FROM alpine:3.18 AS build
 
 RUN apk add --no-cache git go
 

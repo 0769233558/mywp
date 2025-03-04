@@ -1,9 +1,12 @@
+version: '3.8'
 services:
   db:
-    # We use a mariadb image which supports both amd64 & arm64 architecture
-    image: mariadb:10.6.4-focal
-    # If you really want to use MySQL, uncomment the following line
-    #image: mysql:8.0.27
+    # Par exemple, si vous souhaitez customiser l'image de MariaDB,
+    # vous pouvez créer un dossier "db" contenant un Dockerfile qui part de l'image officielle.
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    image: harbor.korporate.org/mywp/mariadb:1
     command: '--default-authentication-plugin=mysql_native_password'
     volumes:
       - db_data:/var/lib/mysql
@@ -16,8 +19,14 @@ services:
     expose:
       - 3306
       - 33060
+
   wordpress:
-    image: wordpress:latest
+    # Dans le cas de Wordpress, si vous souhaitez y apporter des modifications,
+    # créez un dossier "wordpress" avec votre Dockerfile personnalisé.
+    build:
+      context: ./wordpress
+      dockerfile: Dockerfile
+    image:  harbor.korporate.org/mywp/wordpress:1
     ports:
       - 80:80
     restart: always
@@ -26,5 +35,6 @@ services:
       - WORDPRESS_DB_USER=wordpress
       - WORDPRESS_DB_PASSWORD=wordpress
       - WORDPRESS_DB_NAME=wordpress
+
 volumes:
   db_data:

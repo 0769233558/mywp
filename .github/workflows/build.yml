@@ -39,9 +39,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      - name: Installe docker compose
+        run: DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+             mkdir -p $DOCKER_CONFIG/cli-plugins
+             curl -SL https://github.com/docker/compose/releases/download/v2.33.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+             chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+      - name: Build with compose
+        run: docker compose up -d
+
+      - name: Spleep
+        run: spleep 36000
+
       - uses: actions/checkout@v2
       - name: Set env
         run: echo "GITHUB_BRANCH=$(echo $GITHUB_REF_NAME-$GITHUB_SHA)" >> $GITHUB_ENV
+
 
       # - name: Build Docker image
       #   run: |
@@ -49,8 +62,7 @@ jobs:
       #     docker buildx inspect default --bootstrap
       #     docker buildx build --file Dockerfile -t harbor.korporate.org/myapp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA --load .
 
-      - name: Spleep
-        run: spleep 36000
+
 
       - name: Push Docker image to Harbor
         run: |

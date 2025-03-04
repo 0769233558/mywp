@@ -76,19 +76,20 @@ jobs:
           sudo chmod a+x /usr/local/bin/yq
       #    sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 
-      # - name: Clone Repository
-      #   run: |
-      #     git config --global user.name "${{secrets.USERNAME_GITHUB}}"
-      #     git config --global user.email "${{secrets.EMAIL_GITHUB}}"
-      #     cd /tmp
-      #     git clone https://github.com/0769233558/myapp.git
-      #     cd myapp
-      # - name: Update manifest file
-      #   run: |
-      #     yq eval '.spec.template.spec.containers[0].image = "harbor.korporate.org/my-app-image:${{ env.GITHUB_BRANCH }}"' -i deployments/deployment.yml
+      - name: Clone Repository
+        run: |
+          git config --global user.name "${{secrets.USERNAME_GITHUB}}"
+          git config --global user.email "${{secrets.EMAIL_GITHUB}}"
+          cd /tmp
+          git clone https://github.com/0769233558/myapp.git
+          cd myapp
+      - name: Update manifest file
+        run: |
+          yq eval '.spec.template.spec.containers[0].image = "harbor.korporate.org/mywp/mariadb:${{ env.GITHUB_BRANCH }}"' -i deployments/db-deployment.yml
+          yq eval '.spec.template.spec.containers[0].image = "harbor.korporate.org/mywp/wordpress:${{ env.GITHUB_BRANCH }}"' -i deployments/wordpress-deployment.yml
 
-      # - name: Push to Repo
-      #   run: |
-      #     git add .
-      #     git commit -m "Updated by GitHub Actions"
-      #     git push https://github.com/0769233558/myapp.git --all
+      - name: Push to Repo
+        run: |
+          git add .
+          git commit -m "Updated by GitHub Actions"
+          git push https://github.com/0769233558/myapp.git --all

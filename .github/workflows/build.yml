@@ -57,12 +57,18 @@ jobs:
       #     docker buildx inspect default --bootstrap
       #     docker buildx build --file Dockerfile -t harbor.korporate.org/myapp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA --load .
 
-      - name: Sleep
-        run: sleep 36000
+      - name: Tag images
+        run: |
+          docker tag harbor.korporate.org/mywp/mariadb:1 harbor.korporate.org/mywp/mariadb:$GITHUB_REF_NAME-$GITHUB_SHA
+          docker tag harbor.korporate.org/mywp/wordpress:1 harbor.korporate.org/mywp/wordpress:$GITHUB_REF_NAME-$GITHUB_SHA
+
+      # - name: Sleep
+      #   run: sleep 36000
 
       - name: Push Docker image to Harbor
         run: |
-          docker push harbor.korporate.org/mywp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA
+          docker push harbor.korporate.org/mywp/mariadb:$GITHUB_REF_NAME-$GITHUB_SHA
+          docker push harbor.korporate.org/mywp/wordpress:$GITHUB_REF_NAME-$GITHUB_SHA
 
       - name: Install yq
         run: |
@@ -70,19 +76,19 @@ jobs:
           sudo chmod a+x /usr/local/bin/yq
       #    sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
 
-      - name: Clone Repository
-        run: |
-          git config --global user.name "${{secrets.USERNAME_GITHUB}}"
-          git config --global user.email "${{secrets.EMAIL_GITHUB}}"
-          cd /tmp
-          git clone https://github.com/0769233558/myapp.git
-          cd myapp
-      - name: Update manifest file
-        run: |
-          yq eval '.spec.template.spec.containers[0].image = "harbor.korporate.org/my-app-image:${{ env.GITHUB_BRANCH }}"' -i deployments/deployment.yml
+      # - name: Clone Repository
+      #   run: |
+      #     git config --global user.name "${{secrets.USERNAME_GITHUB}}"
+      #     git config --global user.email "${{secrets.EMAIL_GITHUB}}"
+      #     cd /tmp
+      #     git clone https://github.com/0769233558/myapp.git
+      #     cd myapp
+      # - name: Update manifest file
+      #   run: |
+      #     yq eval '.spec.template.spec.containers[0].image = "harbor.korporate.org/my-app-image:${{ env.GITHUB_BRANCH }}"' -i deployments/deployment.yml
 
-      - name: Push to Repo
-        run: |
-          git add .
-          git commit -m "Updated by GitHub Actions"
-          git push https://github.com/0769233558/myapp.git --all
+      # - name: Push to Repo
+      #   run: |
+      #     git add .
+      #     git commit -m "Updated by GitHub Actions"
+      #     git push https://github.com/0769233558/myapp.git --all

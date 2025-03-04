@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: local-path-storage
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-path-provisioner
+  namespace: local-path-storage
+spec:
+  selector:
+    matchLabels:
+      app: local-path-provisioner
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: local-path-provisioner
+    spec:
+      serviceAccountName: local-path-provisioner-sa
+      containers:
+      - name: local-path-provisioner
+        image: rancher/local-path-provisioner:v0.0.21
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/config
+        - name: local-path
+          mountPath: /opt/local-path-provisioner
+      volumes:
+      - name: config-volume
+        configMap:
+          name: local-path-config
+      - name: local-path
+        hostPath:
+          path: /opt/local-path
+          type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: local-path-provisioner-sa
+  namespace: local-path-storage
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-path-config
+  namespace: local-path-storage
+data:
+  config.json: |
+    {
+      "nodePathMap": [
+        {
+          "node": "*",
+          "paths": ["/opt/local-path"]
+        }
+      ]
+    }

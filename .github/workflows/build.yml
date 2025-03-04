@@ -49,9 +49,6 @@ jobs:
       - name: Set env
         run: echo "GITHUB_BRANCH=$(echo $GITHUB_REF_NAME-$GITHUB_SHA)" >> $GITHUB_ENV
 
-      - name: Sleep
-        run: sleep 36000
-
       - name: Build with compose
         run: docker compose build
       # - name: Build Docker image
@@ -60,9 +57,12 @@ jobs:
       #     docker buildx inspect default --bootstrap
       #     docker buildx build --file Dockerfile -t harbor.korporate.org/myapp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA --load .
 
+      - name: Sleep
+        run: sleep 36000
+
       - name: Push Docker image to Harbor
         run: |
-          docker push harbor.korporate.org/myapp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA
+          docker push harbor.korporate.org/mywp/my-app-image:$GITHUB_REF_NAME-$GITHUB_SHA
 
       - name: Install yq
         run: |

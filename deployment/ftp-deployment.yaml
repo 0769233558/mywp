@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.35.0 (HEAD)
+  labels:
+    io.kompose.service: ftp
+  name: ftp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ftp
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.35.0 (HEAD)
+      labels:
+        io.kompose.service: ftp
+    spec:
+      containers:
+        - env:
+            - name: FTP_DIR
+              value: /wp
+            - name: FTP_PASSWORD
+              value: evilFtp
+            - name: FTP_USER
+              value: daribeir
+          image: ftp
+          name: ftp
+          ports:
+            - containerPort: 21
+              protocol: TCP
+            - containerPort: 5000
+              protocol: TCP
+            - containerPort: 5001
+              protocol: TCP
+            - containerPort: 5002
+              protocol: TCP
+            - containerPort: 5003
+              protocol: TCP
+            - containerPort: 5004
+              protocol: TCP
+            - containerPort: 5005
+              protocol: TCP
+            - containerPort: 5006
+              protocol: TCP
+            - containerPort: 5007
+              protocol: TCP
+            - containerPort: 5008
+              protocol: TCP
+            - containerPort: 5009
+              protocol: TCP
+            - containerPort: 5010
+              protocol: TCP
+            - containerPort: 5011
+              protocol: TCP
+            - containerPort: 5012
+              protocol: TCP
+            - containerPort: 5013
+              protocol: TCP
+            - containerPort: 5014
+              protocol: TCP
+            - containerPort: 5015
+              protocol: TCP
+            - containerPort: 5016
+              protocol: TCP
+            - containerPort: 5017
+              protocol: TCP
+            - containerPort: 5018
+              protocol: TCP
+            - containerPort: 5019
+              protocol: TCP
+            - containerPort: 5020
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /wp
+              name: wordpress
+      restartPolicy: Always
+      volumes:
+        - name: wordpress
+          persistentVolumeClaim:
+            claimName: wordpress

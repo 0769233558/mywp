@@ -1,0 +1,338 @@
+name: mywp
+services:
+  adminer:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/adminer
+      dockerfile: Dockerfile
+    networks:
+      adminer: null
+      mariadb: null
+      nginx: null
+    restart: always
+    volumes:
+      - type: volume
+        source: adminer
+        target: /var/www/html/adminer
+        volume: {}
+  baskets:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/baskets
+      dockerfile: Dockerfile
+    networks:
+      baskets: null
+      nginx: null
+    restart: always
+  db:
+    build:
+      context: /home/n43/Documents/mywp/requirements/mariadb
+      dockerfile: Dockerfile
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_PASSWORD: wppass
+      MARIADB_ROOT_PASSWORD: evilMariaDb
+      MARIADB_USER: wpuser
+    networks:
+      mariadb: null
+    restart: always
+    volumes:
+      - type: volume
+        source: mariadb
+        target: /var/lib/mysql
+        volume: {}
+  ftp:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/ftp
+      dockerfile: Dockerfile
+    depends_on:
+      wordpress:
+        condition: service_started
+        required: true
+    environment:
+      FTP_DIR: /wp
+      FTP_PASSWORD: evilFtp
+      FTP_USER: daribeir
+    networks:
+      default: null
+    ports:
+      - mode: ingress
+        target: 21
+        published: "21"
+        protocol: tcp
+      - mode: ingress
+        target: 5000
+        published: "5000"
+        protocol: tcp
+      - mode: ingress
+        target: 5001
+        published: "5001"
+        protocol: tcp
+      - mode: ingress
+        target: 5002
+        published: "5002"
+        protocol: tcp
+      - mode: ingress
+        target: 5003
+        published: "5003"
+        protocol: tcp
+      - mode: ingress
+        target: 5004
+        published: "5004"
+        protocol: tcp
+      - mode: ingress
+        target: 5005
+        published: "5005"
+        protocol: tcp
+      - mode: ingress
+        target: 5006
+        published: "5006"
+        protocol: tcp
+      - mode: ingress
+        target: 5007
+        published: "5007"
+        protocol: tcp
+      - mode: ingress
+        target: 5008
+        published: "5008"
+        protocol: tcp
+      - mode: ingress
+        target: 5009
+        published: "5009"
+        protocol: tcp
+      - mode: ingress
+        target: 5010
+        published: "5010"
+        protocol: tcp
+      - mode: ingress
+        target: 5011
+        published: "5011"
+        protocol: tcp
+      - mode: ingress
+        target: 5012
+        published: "5012"
+        protocol: tcp
+      - mode: ingress
+        target: 5013
+        published: "5013"
+        protocol: tcp
+      - mode: ingress
+        target: 5014
+        published: "5014"
+        protocol: tcp
+      - mode: ingress
+        target: 5015
+        published: "5015"
+        protocol: tcp
+      - mode: ingress
+        target: 5016
+        published: "5016"
+        protocol: tcp
+      - mode: ingress
+        target: 5017
+        published: "5017"
+        protocol: tcp
+      - mode: ingress
+        target: 5018
+        published: "5018"
+        protocol: tcp
+      - mode: ingress
+        target: 5019
+        published: "5019"
+        protocol: tcp
+      - mode: ingress
+        target: 5020
+        published: "5020"
+        protocol: tcp
+    restart: always
+    volumes:
+      - type: volume
+        source: wordpress
+        target: /wp
+        volume: {}
+  nginx:
+    build:
+      context: /home/n43/Documents/mywp/requirements/nginx
+      dockerfile: Dockerfile
+    depends_on:
+      adminer:
+        condition: service_started
+        required: true
+      baskets:
+        condition: service_started
+        required: true
+      revshells:
+        condition: service_started
+        required: true
+      uptime-kuma:
+        condition: service_started
+        required: true
+      wordpress:
+        condition: service_started
+        required: true
+    environment:
+      DOMAIN_NAME: korporate.org
+    networks:
+      adminer: null
+      baskets: null
+      nginx: null
+      revshells: null
+      uptime-kuma: null
+      wordpress: null
+    ports:
+      - mode: ingress
+        target: 443
+        published: "443"
+        protocol: tcp
+    restart: always
+    volumes:
+      - type: volume
+        source: wordpress
+        target: /var/www/html/wp
+        volume: {}
+      - type: volume
+        source: revshells
+        target: /var/www/html/revshells
+        volume: {}
+      - type: volume
+        source: adminer
+        target: /var/www/html/adminer
+        volume: {}
+      - type: volume
+        source: certs
+        target: /certs
+        volume: {}
+  redis:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/redis
+      dockerfile: Dockerfile
+    networks:
+      redis: null
+    restart: always
+  revshells:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/revshells
+      dockerfile: Dockerfile
+    networks:
+      nginx: null
+      revshells: null
+    restart: always
+    volumes:
+      - type: volume
+        source: revshells
+        target: /var/www/html/revshells
+        volume: {}
+  uptime-kuma:
+    build:
+      context: /home/n43/Documents/mywp/requirements/bonus/uptime-kuma
+      dockerfile: Dockerfile
+    environment:
+      DOMAIN_NAME: korporate.org
+      UK_PASSWORD: evilKuma
+      UK_SITE_NAME: daribeir's inception website
+      UK_SITE_URL: https://korporate.org
+      UK_USER: daribeir
+    networks:
+      nginx: null
+      uptime-kuma: null
+    restart: always
+    volumes:
+      - type: volume
+        source: uptime-kuma
+        target: /uptime-kuma/data
+        volume: {}
+  wordpress:
+    build:
+      context: /home/n43/Documents/mywp/requirements/wordpress
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_started
+        required: true
+      redis:
+        condition: service_started
+        required: true
+    environment:
+      DOMAIN_NAME: korporate.org
+      WORDPERSS_ADMIN_PASSWORD: evilAdminWordpress
+      WORDPERSS_PASSWORD: evilWordpress
+      WORDPRESS_ADMIN_EMAIL: evil@42.fr
+      WORDPRESS_ADMIN_USER: evil
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_EMAIL: daribeir@42.fr
+      WORDPRESS_SITE_TITLE: daribeir's inception website
+      WORDPRESS_USER: daribeir
+    networks:
+      mariadb: null
+      redis: null
+      wordpress: null
+    restart: always
+    volumes:
+      - type: volume
+        source: wordpress
+        target: /var/www/html/wp
+        volume: {}
+networks:
+  adminer:
+    name: mywp_adminer
+    driver: bridge
+  baskets:
+    name: mywp_baskets
+    driver: bridge
+  default:
+    name: mywp_default
+  mariadb:
+    name: mywp_mariadb
+    driver: bridge
+  nginx:
+    name: mywp_nginx
+    driver: bridge
+  redis:
+    name: mywp_redis
+    driver: bridge
+  revshells:
+    name: mywp_revshells
+    driver: bridge
+  uptime-kuma:
+    name: mywp_uptime-kuma
+    driver: bridge
+  wordpress:
+    name: mywp_wordpress
+    driver: bridge
+volumes:
+  adminer:
+    name: adminer
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/adminer
+      o: bind
+      type: none
+  certs:
+    name: certs
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/certs
+      o: bind
+      type: none
+  mariadb:
+    name: mariadb
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/mariadb
+      o: bind
+      type: none
+  revshells:
+    name: revshells
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/revshells
+      o: bind
+      type: none
+  uptime-kuma:
+    name: uptime-kuma
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/uptime-kuma
+      o: bind
+      type: none
+  wordpress:
+    name: wordpress
+    driver_opts:
+      device: /home/n43/Documents/mywp/data/wordpress
+      o: bind
+      type: none

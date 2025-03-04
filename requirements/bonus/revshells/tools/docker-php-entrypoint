@@ -1,0 +1,32 @@
+#!/bin/sh
+
+ALREADY_EXISTS='false'
+DATADIR='/var/www/html/revshells'
+
+main() {
+	echo "enty point start ...."
+	if [ -f "$DATADIR/index.php" ]; then
+		ALREADY_EXISTS='true'
+	fi
+
+	if [ "$ALREADY_EXISTS" = 'false' ]; then
+		echo "Revshells Adminer..."
+		git clone https://github.com/0dayCTF/reverse-shell-generator.git revshells
+		mv revshells/* .
+		rm -rf revshells
+		echo -e "\Revshells installation done. Ready for start up.\n"
+	else
+		echo "Revshells is already installed"
+	fi
+
+	echo "Starting python web server ..."
+	python3 -m http.server 8080
+	exec "$@"
+}
+
+if [ "$1" = 'revshells' ]; then
+	main $@
+else
+	exec "$@"
+fi
+

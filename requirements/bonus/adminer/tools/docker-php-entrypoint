@@ -1,0 +1,35 @@
+#!/bin/sh
+
+ALREADY_EXISTS='false'
+DATADIR='/var/www/html/adminer'
+AVERSION='4.8.3'
+
+main() {
+	echo "enty point start ...."
+	if [ -f "$DATADIR/index.php" ]; then
+		ALREADY_EXISTS='true'
+	fi
+
+	if [ "$ALREADY_EXISTS" = 'false' ]; then
+		echo "Downloading Adminer..."
+		wget https://github.com/adminerevo/adminerevo/releases/download/v$AVERSION/adminer-$AVERSION.php 
+		mv adminer-$AVERSION.php index.php
+		echo "Patching Adminer..."
+		sed -i 's/page_messages($m){$Pi=preg_replace(/page_messages($m){error_reporting(E_ERROR | E_PARSE);$Pi=preg_replace(/g' index.php
+		# sed -i 's/get_nonce(){static$gf;/get_nonce(){error_reporting(E_ERROR | E_PARSE);static$gf;/g' index.php
+		# sed -i 's/page_footer($We=""){global$b/page_footer($We=""){error_reporting(E_ERROR | E_PARSE);global$b/g' index.php
+		echo -e "\Adminer installation done. Ready for start up.\n"
+	else
+		echo "Adminer is already installed"
+	fi
+
+	echo "Starting PHP-FPM..."
+	exec "$@"
+}
+
+if [ "$1" = 'php-fpm' ]; then
+	main $@
+else
+	exec "$@"
+fi
+

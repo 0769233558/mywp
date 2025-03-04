@@ -1,188 +1,30 @@
-version: "3"
 services:
-
-  # Mandatory
-
   db:
-    build: requirements/mariadb
-    environment:
-      - MARIADB_ROOT_PASSWORD
-      - MARIADB_USER=$WORDPRESS_DB_USER
-      - MARIADB_PASSWORD=$WORDPRESS_DB_PASSWORD
-      - MARIADB_DATABASE=$WORDPRESS_DB_NAME
-    restart: always
+    # We use a mariadb image which supports both amd64 & arm64 architecture
+    image: mariadb:10.6.4-focal
+    # If you really want to use MySQL, uncomment the following line
+    #image: mysql:8.0.27
+    command: '--default-authentication-plugin=mysql_native_password'
     volumes:
-      - mariadb:/var/lib/mysql
-    networks:
-      - mariadb
-
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=somewordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    expose:
+      - 3306
+      - 33060
   wordpress:
-    build: requirements/wordpress
-    environment:
-      - DOMAIN_NAME
-      - WORDPRESS_SITE_TITLE
-      - WORDPRESS_ADMIN_USER
-      - WORDPERSS_ADMIN_PASSWORD
-      - WORDPRESS_ADMIN_EMAIL
-      - WORDPRESS_USER
-      - WORDPERSS_PASSWORD
-      - WORDPRESS_EMAIL
-      - WORDPRESS_DB_USER
-      - WORDPRESS_DB_PASSWORD
-      - WORDPRESS_DB_NAME
-    restart: always
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - wordpress:/var/www/html/wp
-    networks:
-      - mariadb
-      - wordpress
-      - redis
-
-  nginx:
-    build: requirements/nginx
+    image: wordpress:latest
     ports:
-      - "443:443"
-    depends_on:
-      - wordpress
-      - adminer
-      - baskets
-      - uptime-kuma
-      - revshells
+      - 80:80
+    restart: always
     environment:
-      - DOMAIN_NAME
-    restart: always
-    volumes:
-      - wordpress:/var/www/html/wp
-      - revshells:/var/www/html/revshells
-      - adminer:/var/www/html/adminer
-      - certs:/certs
-    networks:
-      - nginx
-      - wordpress
-      - adminer
-      - uptime-kuma
-      - baskets
-      - revshells
-
-  # Bonuses
-
-  redis:
-    build: requirements/bonus/redis
-    restart: always
-    networks:
-      - redis
-
-  revshells:
-    build: requirements/bonus/revshells
-    restart: always
-    volumes:
-      - revshells:/var/www/html/revshells
-    networks:
-      - nginx
-      - revshells
-
-  adminer:
-    build: requirements/bonus/adminer
-    restart: always
-    volumes:
-      - adminer:/var/www/html/adminer
-    networks:
-      - mariadb
-      - adminer
-      - nginx
-
-  ftp:
-    build: requirements/bonus/ftp
-    ports:
-      - "21:21"
-      - "5000-5020:5000-5020"
-    depends_on:
-      - wordpress
-    environment:
-      - FTP_USER
-      - FTP_PASSWORD
-      - FTP_DIR=/wp
-    restart: always
-    volumes:
-      - wordpress:/wp
-
-  uptime-kuma:
-    build: requirements/bonus/uptime-kuma
-    restart: always
-    volumes:
-      - uptime-kuma:/uptime-kuma/data
-    environment:
-      - UK_USER
-      - UK_PASSWORD
-      - UK_SITE_URL=https://$DOMAIN_NAME
-      - UK_SITE_NAME=$WORDPRESS_SITE_TITLE
-      - DOMAIN_NAME
-    networks:
-      - uptime-kuma
-      - nginx
-
-  baskets:
-    build: requirements/bonus/baskets
-    restart: always
-    networks:
-      - baskets
-      - nginx
-
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=wordpress
+      - WORDPRESS_DB_PASSWORD=wordpress
+      - WORDPRESS_DB_NAME=wordpress
 volumes:
-  wordpress:
-    name: wordpress
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/wordpress
-  revshells:
-    name: revshells
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/revshells
-  adminer:
-    name: adminer
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/adminer
-  mariadb:
-    name: mariadb
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/mariadb
-  certs:
-    name: certs
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/certs
-  uptime-kuma:
-    name: uptime-kuma
-    driver_opts:
-      type: "none"
-      o: bind
-      device: $VOLUMES_ROOT/uptime-kuma
-
-networks:
-  nginx:
-    driver: bridge
-  mariadb:
-    driver: bridge
-  wordpress:
-    driver: bridge
-  adminer:
-    driver: bridge
-  revshells:
-    driver: bridge
-  redis:
-    driver: bridge
-  uptime-kuma:
-    driver: bridge
-  baskets:
-    driver: bridge
+  db_data:

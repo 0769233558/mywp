@@ -1,0 +1,21 @@
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: mywp
+  namespace: staging-mywp
+  labels:
+    app: mywp
+    traefik-discover: 'public'
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`mywp.korporate.org`)
+      kind: Rule
+      services:
+        - name: mywp-external
+          port: 80
+  tls:
+    certResolver: default

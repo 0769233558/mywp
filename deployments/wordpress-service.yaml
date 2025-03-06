@@ -6,10 +6,15 @@ metadata:
     kompose.version: 1.35.0 (HEAD)
   labels:
     io.kompose.service: wordpress
+    traefik-discover: "public"
   name: wordpress
+  namespace: staging-mywp
 spec:
+  type: LoadBalancer
+  loadBalancerIP: 10.0.50.120
   ports:
-    - name: "80"
+    - name: http
+      protocol: TCP
       port: 80
       targetPort: 80
   selector:

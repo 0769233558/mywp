@@ -31,7 +31,7 @@ spec:
               value: wordpress
             - name: WORDPRESS_DB_USER
               value: wordpress
-          image: harbor.korporate.org/mywp/wordpress@sha256:d99708bac50e78a4f759ea1c42101f9b6508698c3f5c8ac5e014cd30a5ceb543
+          image: harbor.korporate.org/mywp/wordpress:main-5dbd3b1f46646aa7ac9979c2d76e1b789ac3fff9
           name: wordpress
           ports:
             - containerPort: 80
